@@ -37,8 +37,7 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 
 	internal IResult GetWeatherById(
 		IRepository<int, WeatherRecord> repo,
-		[FromRoute] int id
-	)
+		[FromRoute] int id)
 	{
 		return repo.TryGetById(id, out var record) ?
 			Results.Ok(record) :
@@ -47,30 +46,27 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 
 	internal async Task<IResult> GetWeatherByCoords(
 		IRepository<int, WeatherRecord> repo,
-		[FromBody] WeatherRequest request
-	)
+		[FromBody] WeatherRequest request)
 	{
 		var id = request.GetHashCode();
 		Log.Debug($"request hash {id}");
-		if (repo.TryGetById(id, out var record))
+		if (repo.TryGetById(id, out var forecast))
 		{
-			return Results.Ok(record);
+			return Results.Ok(forecast);
 		}
 		Log.Information("calling meteoblue api to gather new forecast...");
-		var weather = await GetWeather(request, "trend-day");
-		if (weather == null)
+		forecast = await GetForecastFromMeteoblue(request, "trend-day");
+		if (forecast != null)
 		{
-			Results.NotFound(request);
+			id = repo.Add(forecast);
+			return Results.Created($"{_path}/{id}", forecast);
 		}
-		record = new WeatherRecord(request, weather!, DateTime.Now);
-		id = repo.Add(record);
-		return Results.Created($"{_path}/{id}", record);
+		return Results.NotFound(request);
 	}
 
-	private async Task<Weather?> GetWeather(
+	private async Task<WeatherRecord?> GetForecastFromMeteoblue(
 		WeatherRequest request,
-		string package
-	)
+		string package)
 	{
 		var req = $"packages/{package}?apikey={_apiKey}";
 		req += $"&lon={request.Where.Longitude}&lat={request.Where.Latitude}";
@@ -83,8 +79,14 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 		var jsonResponse = await response.Content.ReadAsStringAsync();
 		//System.Console.WriteLine(jsonResponse);
 		var obj = JObject.Parse(jsonResponse);
+		var published = obj["metadata"]["modelrun_updatetime_utc"].Value<DateTime>();
+		published = DateTime.SpecifyKind(published, DateTimeKind.Utc);
 		var data = obj[package.Replace('-', '_')].ToObject<WeatherResponse>();
+		var weather = data.MakeWeather(request.When);
 
-		return data.MakeWeather(request.When);
+		if (weather == null)
+			return null;
+
+		return new WeatherRecord(request, weather, published);
 	}
 }
