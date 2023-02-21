@@ -24,7 +24,7 @@ builder.Services.Configure<JsonOptions>(opt =>
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointDefinitions(typeof(Race),typeof(OpenApiInfo));
 
-Log.Information(builder.Configuration.GetDebugView());
+//Log.Information(builder.Configuration.GetDebugView());
 
 var app = builder.Build();
 

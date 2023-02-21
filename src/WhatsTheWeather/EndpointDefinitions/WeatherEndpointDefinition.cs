@@ -79,7 +79,11 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 		using HttpResponseMessage response = await _client.GetAsync(req);
     
 		if (!response.IsSuccessStatusCode)
+		{
+			Log.Error($"failing request: {req}");
+			Log.Error(response.ReasonPhrase);
 			return null;
+		}
 		
 		var jsonResponse = await response.Content.ReadAsStringAsync();
 		//System.Console.WriteLine(jsonResponse);
