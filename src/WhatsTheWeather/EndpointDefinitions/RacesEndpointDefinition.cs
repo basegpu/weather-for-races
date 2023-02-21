@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using WhatsTheWeather.Models.Domain;
 using WhatsTheWeather.Repositories;
 using WhatsTheWeather.SecretSauce;
@@ -11,6 +12,7 @@ public class RacesEndpointDefinition : IEndpointDefinition
 	public void DefineEndpoints(WebApplication app)
 	{
 		app.MapGet(_path, GetAll).Produces<IDictionary<int, Race>>(200);
+		app.MapGet(_path + "/{name}/{year}", GetRaceByNameAndYear).Produces<Race>(200).Produces(404);
 		app.MapGet(_path + "/{id}", GetRaceById).Produces<Race>(200).Produces(404);
 	}
 
@@ -36,7 +38,26 @@ public class RacesEndpointDefinition : IEndpointDefinition
 		return Results.Ok(repo.GetAll());
 	}
 
-	internal IResult GetRaceById(IRepository<int, Race> repo, int id)
+	internal IResult GetRaceByNameAndYear(
+		IRepository<int, Race> repo,
+		[FromRoute] string name,
+		[FromRoute] int year)
+	{
+		var races = repo.GetAll()
+			.Select(kvp => kvp.Value)
+			.Where(race =>
+				string.Equals(race.Name, name, StringComparison.InvariantCultureIgnoreCase) &&
+				race.Start.Year == year);
+		if (races.Count() == 0)
+		{
+			return Results.NotFound($"no race found with name {name} in {year}.");
+		}
+		return Results.Ok(races.First());
+	}
+
+	internal IResult GetRaceById(
+		IRepository<int, Race> repo,
+		int id)
 	{
 		return repo.TryGetById(id, out var race) ? Results.Ok(race) : Results.NotFound();
 	}

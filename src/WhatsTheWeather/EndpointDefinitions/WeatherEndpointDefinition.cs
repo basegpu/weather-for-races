@@ -46,19 +46,24 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 
 	internal async Task<IResult> GetWeatherByCoords(
 		IRepository<int, WeatherRecord> repo,
-		[FromBody] WeatherRequest request)
+		[FromBody] WeatherRequest request,
+		[FromQuery] bool ForceExternal = false)
 	{
-		var id = request.GetHashCode();
-		Log.Debug($"request hash {id}");
-		if (repo.TryGetById(id, out var forecast))
+		WeatherRecord? forecast;
+		if (!ForceExternal)
 		{
-			return Results.Ok(forecast);
+			// try first locally from repo
+			var id = request.GetHashCode();
+			if (repo.TryGetById(id, out forecast))
+			{
+				return Results.Ok(forecast);
+			}
 		}
 		Log.Information("calling meteoblue api to gather new forecast...");
 		forecast = await GetForecastFromMeteoblue(request, "trend-day");
 		if (forecast != null)
 		{
-			id = repo.Add(forecast);
+			var id = repo.Add(forecast);
 			return Results.Created($"{_path}/{id}", forecast);
 		}
 		return Results.NotFound(request);
