@@ -31,7 +31,6 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 	{
 		var config = services.BuildServiceProvider().GetService<IConfiguration>()!;
 		_apiKey = config["Meteoblue:ApiKey"];
-		Log.Information($"meteoblue apikey: {_apiKey}");
 		services.AddSingleton<IRepository<int, WeatherRecord>, WeatherRepository>();
 	}
 
@@ -81,7 +80,6 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 		if (!response.IsSuccessStatusCode)
 		{
 			Log.Error($"failing request: {req}");
-			Log.Error(response.ReasonPhrase);
 			return null;
 		}
 		
