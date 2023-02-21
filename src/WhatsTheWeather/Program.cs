@@ -3,8 +3,15 @@ using Microsoft.AspNetCore.Http.Json;
 using System.Text.Json.Serialization;
 using WhatsTheWeather.Models.Domain;
 using WhatsTheWeather.SecretSauce;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
