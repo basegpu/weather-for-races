@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using WhatsTheWeather.Models.Domain;
 using WhatsTheWeather.Repositories;
 using WhatsTheWeather.SecretSauce;
