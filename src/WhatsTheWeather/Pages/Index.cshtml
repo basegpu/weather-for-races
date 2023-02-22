@@ -27,16 +27,19 @@
                     <thead>
                         <tr>
                             <td><b>Name (km)</b></td>
-                            <td><b>Picto</b></td>
-                            <td><b>Predictability</b></td>
+                            <td><b>Weather</b></td>
+                            <td><b>Predictability [%]</b></td>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var kvp in Model.Forecast)
                         {
-                            <tr>
+                            <tr style="vertical-align: middle;">
                                 <td>@kvp.Key (@kvp.Value.Km)</td>
-                                <td>@kvp.Value.Data.Pictocode</td>
+                                @{
+                                    var img = Url.Content($"~/images/meteoblue/{@kvp.Value.Data.Pictocode:D2}_iday.png");
+                                    <td><img src="@img" style="width: 3rem;"></td>
+                                }
                                 <td>@kvp.Value.Data.Predictability</td>
                             </tr>
                         }
