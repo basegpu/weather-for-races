@@ -25,10 +25,26 @@
             <div class="card-body">
                 <table class="table">
                     <thead>
-                        <tr>
+                        <tr style="vertical-align: middle;">
                             <td><b>Name (km)</b></td>
                             <td><b>Weather</b></td>
                             <td><b>Predictability [%]</b></td>
+                            <td colspan="2">
+                                <b>Precipitation</b>
+                                <br>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <div>[mm]</div>
+                                    <div>[%]</div>
+                                </div>
+                            </td>
+                            <td colspan="2">
+                                <b>Temperature [°C]</b>
+                                <br>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <div>min</div>
+                                    <div>max</div>
+                                </div>
+                            </td>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,6 +57,10 @@
                                     <td><img src="@img" style="width: 3rem;"></td>
                                 }
                                 <td>@kvp.Value.Data.Predictability</td>
+                                <td>@kvp.Value.Data.Precipitation</td>
+                                <td>@kvp.Value.Data.PrecipitationProbability</td>
+                                <td>@kvp.Value.Data.TemperatureMin</td>
+                                <td>@kvp.Value.Data.TemperatureMax</td>
                             </tr>
                         }
                     </tbody>
