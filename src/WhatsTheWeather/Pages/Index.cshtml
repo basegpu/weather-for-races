@@ -2,15 +2,6 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
-
-    var qualityColorMap = new Dictionary<int, string>()
-    {
-        {1, "Red"},
-        {2, "Orange"},
-        {3, "Yellow"},
-        {4, "LimeGreen"},
-        {5, "ForestGreen"},
-    };
 }
 
 <div class="text-center">
@@ -40,18 +31,10 @@
                             <td><b>km</b></td>
                             <td><b>Name</b></td>
                             <td><b>Weather</b></td>
-                            <td colspan="2">
-                                <b>Temperature [°C]</b>
-                            </td>
-                            <td colspan="2">
-                                <b>Precipitation</b>
-                                <br>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <div>[mm]</div>
-                                    <div>[%]</div>
-                                </div>
-                            </td>
-                            <td><b>Quality</b></td>
+                            <td><b>Temperature [°C]</b></td>
+                            <td><b>Precipitation [mm]</b></td>
+                            <td><b>Windspeed [ms-1]</b></td>
+                            <td><b>Wind Direction</b></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,21 +45,19 @@
                                 <td>@kvp.Value.Km</td>
                                 <td>@kvp.Key</td>
                                 @{
-                                    var img = Url.Content($"~/images/meteoblue/{@kvp.Value.Data.Pictocode:D2}_day.png");
-                                    var minTemp = Math.Round(@kvp.Value.Data.TemperatureMin, 0);
-                                    var maxTemp = Math.Round(@kvp.Value.Data.TemperatureMax, 0);
-                                    var qColor = @qualityColorMap[@kvp.Value.Data.PredictabilityClass];
+                                    var img = Url.Content($"~/images/meteoblue/{@kvp.Value.Data.PictoCode:D2}_day.png");
+                                    var temp = Math.Round(@kvp.Value.Data.Temperature, 0);
+                                    var temp95 = Math.Round(@kvp.Value.Data.TemperatureSpread*2, 1);
+                                    var prec = Math.Round(@kvp.Value.Data.Precipitation, 0);
+                                    var prec95 = Math.Round(@kvp.Value.Data.PrecipitationSpread*2, 1);
+                                    var wind = Math.Round(@kvp.Value.Data.Windspeed*3.6, 0);
+                                    var wind95 = Math.Round(@kvp.Value.Data.WindspeedSpread*3.6*2, 1);
                                 }
                                 <td><img src="@img" style="width: 3rem;"></td>
-                                <td style="color: blue;">@minTemp</td>
-                                <td style="color: red;">@maxTemp</td>
-                                <td>@kvp.Value.Data.Precipitation</td>
-                                <td>@kvp.Value.Data.PrecipitationProbability</td>
-                                <td>
-                                    <div class="progress">
-                                        <div class="progress-bar" role="progressbar" style="width: @kvp.Value.Data.Predictability%; background-color:@qColor" aria-valuenow="@kvp.Value.Data.Predictability" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </td>
+                                <td>@temp (@temp95)</td>
+                                <td>@prec (@prec95)</td>
+                                <td>@wind (@wind95)</td>
+                                <td>@kvp.Value.Data.WindDirection</td>
                             </tr>
                         }
                     </tbody>

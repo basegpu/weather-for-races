@@ -1,10 +1,11 @@
 ﻿namespace WhatsTheWeather.Models.Domain;
 
 public record Weather(
-    int Pictocode,
-    double TemperatureMin,
-    double TemperatureMax,
-    double Precipitation,
-    double PrecipitationProbability,
-    int Predictability,
-    int PredictabilityClass);
+    int PictoCode,
+	double Temperature,
+	double TemperatureSpread,
+	double Precipitation,
+	double PrecipitationSpread,
+    double Windspeed,
+    double WindspeedSpread,
+    int WindDirection);
