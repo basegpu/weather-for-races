@@ -15,13 +15,13 @@
 
 <div class="text-center">
     <h1 class="display-4">What's the Weather?</h1>
-    <p>Get the latest weather forecast for your upcoming race...</p>
+    <h5 class="lead">Get the latest weather forecast for your upcoming race...</h5>
 </div>
 
 <div>
-    <div class="container-fluid d-flex justify-content-center p-4">
+    <div class="container-fluid d-flex justify-content-center p-4 fon">
         <div class="card">
-            <h6 class="card-header">@Model.RaceName, @Model.RaceYear</h6>
+            <h5 class="card-header">@Model.RaceName, @Model.RaceYear</h5>
             <div class="card-body">
                 <p class="card-text">Starting at: <i>@Model.Race.Start</i></p>
                 <p class="card-text">Target Race Duration: <i>@Model.RaceDuration</i></p>
@@ -31,7 +31,7 @@
     
     <div class="container-fluid d-flex justify-content-center p-2">
         <div class="card">
-            <h6 class="card-header">Current Trend</h6>
+            <h5 class="card-header">Current Trend</h5>
             <div class="card-body">
                 <table class="table">
                     <thead>
