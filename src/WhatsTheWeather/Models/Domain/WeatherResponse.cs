@@ -14,7 +14,7 @@ public record WeatherResponse(
 {
     public Weather? MakeWeather(DateTime when)
 	{
-		var index = Time.FindIndex(dt => dt.Date == when.Date);
+		var index = Time.FindIndex(dt => when < dt) - 1;
         return (index < 0) ? null : new Weather(
 			PictoCode[index],
 			Temperature[index],

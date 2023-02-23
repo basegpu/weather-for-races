@@ -2,6 +2,18 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
+
+    var temp_icon = Url.Content($"~/images/flaticon/celsius.png");
+    var rain_icon = Url.Content($"~/images/flaticon/rain.png");
+    var wind_icon = Url.Content($"~/images/flaticon/wind.png");
+    var sock_icon = Url.Content($"~/images/flaticon/windsock.png");
+
+    var dirMap = new List<string>{"N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"};
+    string int2dir(double x)
+    {
+        var index = (int)Math.Floor(((x + 11.25) % 360) / 22.5);
+        return dirMap[index];
+    }
 }
 
 <div class="text-center">
@@ -30,11 +42,11 @@
                             <td><b>Time</b></td>
                             <td><b>km</b></td>
                             <td><b>Name</b></td>
-                            <td><b>Weather</b></td>
-                            <td><b>Temperature [°C]</b></td>
-                            <td><b>Precipitation [mm]</b></td>
-                            <td><b>Windspeed [ms-1]</b></td>
-                            <td><b>Wind Direction</b></td>
+                            <td></td>
+                            <td><img src="@temp_icon" style="width: 3rem;"><br>[°C]</td>
+                            <td><img src="@rain_icon" style="width: 3rem;"><br>[mm]</td>
+                            <td><img src="@wind_icon" style="width: 3rem;"><br>[km/h]</td>
+                            <td><img src="@sock_icon" style="width: 3rem;"></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -57,7 +69,7 @@
                                 <td>@temp (@temp95)</td>
                                 <td>@prec (@prec95)</td>
                                 <td>@wind (@wind95)</td>
-                                <td>@kvp.Value.Data.WindDirection</td>
+                                <td>@int2dir(@kvp.Value.Data.WindDirection)</td>
                             </tr>
                         }
                     </tbody>
