@@ -48,7 +48,7 @@ public class IndexModel : PageModel
         foreach (var checkpoint in race.Checkpoints)
         {
             var request = new WeatherRequest(checkpoint.Location, race.Start);
-            response = await _api.PostAsJsonAsync<WeatherRequest>("weather?ForceExternal=true", request);
+            response = await _api.PostAsJsonAsync<WeatherRequest>("weather", request);
             response.EnsureSuccessStatusCode();
             var record = WeatherRecord.FromJson(await response.Content.ReadAsStringAsync());
             if (record == null)
