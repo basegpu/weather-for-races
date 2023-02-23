@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using WhatsTheWeather.Models.Domain;
+using WhatsTheWeather.Models.View;
 using WhatsTheWeather.Repositories;
 
 namespace WhatsTheWeather.Pages;
@@ -14,7 +15,7 @@ public class IndexModel : PageModel
     public int RaceYear { get; private set; }
     public TimeSpan RaceDuration { get; private set; }
     public Race Race { get; private set; }
-    public Dictionary<string, (DateTime Time, int Km, Weather Data)> Forecast { get; private set; } = new();
+    public Dictionary<string, ForecastRow> Rows { get; private set; } = new();
 
     public IndexModel(
         ILogger<IndexModel> logger,
@@ -38,8 +39,11 @@ public class IndexModel : PageModel
         foreach (var checkpoint in Race.Checkpoints)
         {
             var record = GetRecordAsync(checkpoint.Location, Race.Start, false).Result;
-            var time = Race.Start + RaceDuration * (double)checkpoint.Distance/totalDistance;
-            Forecast.Add(checkpoint.Name, (time, checkpoint.Distance, record.Data));
+            var forecast = new ForecastRow(
+                Race.Start + RaceDuration * (double)checkpoint.Distance/totalDistance,
+                checkpoint.Distance,
+                record.Data);
+            Rows.Add(checkpoint.Name, forecast);
         }
     }
 
@@ -85,9 +89,9 @@ public class IndexModel : PageModel
 
     private void UpdateForecast(string name, Weather data)
     {
-        if (Forecast.TryGetValue(name, out var forecast))
+        if (Rows.TryGetValue(name, out var forecast))
         {
-            forecast.Data = data;
+            Rows[name] = forecast with { Data = data};
         }
     }
 }

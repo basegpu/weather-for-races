@@ -59,7 +59,7 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 			}
 		}
 		Log.Information("calling meteoblue api to gather new forecast...");
-		forecast = await GetForecastFromMeteoblue(request, "trend-day");
+		forecast = await GetForecastFromMeteoblue(request, "trend-1h");
 		if (forecast != null)
 		{
 			var id = repo.Add(forecast);

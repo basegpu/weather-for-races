@@ -55,14 +55,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var kvp in Model.Forecast)
+                        @foreach (var kvp in Model.Rows)
                         {
                             <tr style="vertical-align: middle;">
                                 <td>@kvp.Value.Time.TimeOfDay.ToString("hh\\:mm")</td>
                                 <td>@kvp.Value.Km</td>
                                 <td>@kvp.Key</td>
                                 @{
-                                    var img = Url.Content($"~/images/meteoblue/{@kvp.Value.Data.Pictocode:D2}_iday.png");
+                                    var img = Url.Content($"~/images/meteoblue/{@kvp.Value.Data.Pictocode:D2}_day.png");
                                     var minTemp = Math.Round(@kvp.Value.Data.TemperatureMin, 0);
                                     var maxTemp = Math.Round(@kvp.Value.Data.TemperatureMax, 0);
                                     var qColor = @qualityColorMap[@kvp.Value.Data.PredictabilityClass];
