@@ -23,7 +23,8 @@
         <div class="card">
             <h6 class="card-header">@Model.RaceName, @Model.RaceYear</h6>
             <div class="card-body">
-                <p class="card-text">@Model.Start</p>
+                <p class="card-text">Starting at: <i>@Model.Race.Start</i></p>
+                <p class="card-text">Target Race Duration: <i>@Model.RaceDuration</i></p>
             </div>
         </div>
     </div>
@@ -35,7 +36,9 @@
                 <table class="table">
                     <thead>
                         <tr style="vertical-align: middle;">
-                            <td><b>Name (km)</b></td>
+                            <td><b>Time</b></td>
+                            <td><b>km</b></td>
+                            <td><b>Name</b></td>
                             <td><b>Weather</b></td>
                             <td colspan="2">
                                 <b>Temperature [°C]</b>
@@ -55,7 +58,9 @@
                         @foreach (var kvp in Model.Forecast)
                         {
                             <tr style="vertical-align: middle;">
-                                <td>@kvp.Key (@kvp.Value.Km)</td>
+                                <td>@kvp.Value.Time.TimeOfDay.ToString("hh\\:mm")</td>
+                                <td>@kvp.Value.Km</td>
+                                <td>@kvp.Key</td>
                                 @{
                                     var img = Url.Content($"~/images/meteoblue/{@kvp.Value.Data.Pictocode:D2}_iday.png");
                                     var minTemp = Math.Round(@kvp.Value.Data.TemperatureMin, 0);
