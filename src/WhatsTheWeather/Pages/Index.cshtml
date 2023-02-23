@@ -28,7 +28,9 @@
                         <tr style="vertical-align: middle;">
                             <td><b>Name (km)</b></td>
                             <td><b>Weather</b></td>
-                            <td><b>Predictability [%]</b></td>
+                            <td colspan="2">
+                                <b>Temperature [°C]</b>
+                            </td>
                             <td colspan="2">
                                 <b>Precipitation</b>
                                 <br>
@@ -37,14 +39,7 @@
                                     <div>[%]</div>
                                 </div>
                             </td>
-                            <td colspan="2">
-                                <b>Temperature [°C]</b>
-                                <br>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <div>min</div>
-                                    <div>max</div>
-                                </div>
-                            </td>
+                            <td><b>Quality [%]</b></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,13 +49,15 @@
                                 <td>@kvp.Key (@kvp.Value.Km)</td>
                                 @{
                                     var img = Url.Content($"~/images/meteoblue/{@kvp.Value.Data.Pictocode:D2}_iday.png");
-                                    <td><img src="@img" style="width: 3rem;"></td>
+                                    var minTemp = Math.Round(@kvp.Value.Data.TemperatureMin, 0);
+                                    var maxTemp = Math.Round(@kvp.Value.Data.TemperatureMax, 0);
                                 }
-                                <td>@kvp.Value.Data.Predictability</td>
+                                <td><img src="@img" style="width: 3rem;"></td>
+                                <td style="color: blue;">@minTemp</td>
+                                <td style="color: red;">@maxTemp</td>
                                 <td>@kvp.Value.Data.Precipitation</td>
                                 <td>@kvp.Value.Data.PrecipitationProbability</td>
-                                <td>@kvp.Value.Data.TemperatureMin</td>
-                                <td>@kvp.Value.Data.TemperatureMax</td>
+                                <td>(@kvp.Value.Data.Predictability)</td>
                             </tr>
                         }
                     </tbody>
