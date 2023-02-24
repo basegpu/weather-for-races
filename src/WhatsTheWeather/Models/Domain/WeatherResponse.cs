@@ -1,3 +1,5 @@
+using Serilog;
+
 namespace WhatsTheWeather.Models.Domain;
 
 public record WeatherResponse(
@@ -12,10 +14,14 @@ public record WeatherResponse(
     List<int> WindDirection
 )
 {
-    public Weather? MakeWeather(DateTime when)
+    public Weather MakeWeather(DateTime when)
 	{
-		var index = Time.FindIndex(dt => when < dt) - 1;
-        return (index < 0) ? null : new Weather(
+		var closest = Time
+			.Select( (x, index) => (Item: x, Index: index)) // Save the item index and item in an anonymous class
+			.Aggregate((x,y) => Math.Abs((x.Item - when).TotalSeconds) < Math.Abs((y.Item - when).TotalSeconds) ? x : y);
+		var index = closest.Index;
+		Log.Information(closest.ToString());
+        return new Weather(
 			PictoCode[index],
 			Temperature[index],
 			Temperature_Spread[index],

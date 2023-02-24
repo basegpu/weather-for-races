@@ -90,10 +90,6 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 		published = DateTime.SpecifyKind(published, DateTimeKind.Utc);
 		var data = obj[package.Replace('-', '_')].ToObject<WeatherResponse>();
 		var weather = data.MakeWeather(request.When);
-
-		if (weather == null)
-			return null;
-
 		return new WeatherRecord(request, weather, published);
 	}
 }
