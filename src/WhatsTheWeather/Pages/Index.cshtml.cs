@@ -83,7 +83,11 @@ public class IndexModel : PageModel
     private async Task<WeatherRecord> GetLatestForecast(Coordinates location, DateTime time)
     {
         var request = new WeatherRequest(location, time);
-        var response = await _api.PostAsJsonAsync<WeatherRequest>($"forecast", request);
+        var response = await _api.PostAsJsonAsync<WeatherRequest>($"weather", request);
+        if (!response.IsSuccessStatusCode)
+        {
+            response = await _api.PostAsJsonAsync<WeatherRequest>($"forecast", request);
+        }
         response.EnsureSuccessStatusCode();
         var record = WeatherRecord.FromJson(await response.Content.ReadAsStringAsync());
         if (record == null)
