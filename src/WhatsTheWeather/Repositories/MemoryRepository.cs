@@ -22,6 +22,17 @@ class MemoryRepository<T> : IRepository<int, T>
         return hash;
     }
 
+    public int Update(T entity)
+    {
+        var hash = entity!.GetHashCode();
+        lock (_injectLock)
+        {
+            _orderedKeys.Enqueue(hash);
+            _repo.AddOrUpdate(hash, (hash) => entity, (hash, _) => entity);
+        }
+        return hash;
+    }
+
     public IDictionary<int, T> GetAll()
     {
         lock (_injectLock)

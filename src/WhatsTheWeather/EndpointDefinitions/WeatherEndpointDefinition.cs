@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using Serilog;
 using WhatsTheWeather.Models.Domain;
 using WhatsTheWeather.Repositories;
@@ -10,11 +9,6 @@ namespace WhatsTheWeather.EndpointDefinitions;
 public class WeatherEndpointDefinition : IEndpointDefinition
 {
 	private readonly string _path = "/api/weather";
-	private readonly HttpClient _client = new()
-	{
-		BaseAddress = new Uri("https://my.meteoblue.com"),
-	};
-	private string _apiKey = "";
 	
 	public void DefineEndpoints(WebApplication app)
 	{
@@ -23,14 +17,13 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 			.Produces<int>(404);
 		app.MapPost(_path, GetWeatherByCoords)
 			.Produces<WeatherRecord>(200)
-			.Produces<WeatherRecord>(201)
 			.Produces<WeatherRequest>(404);
+		app.MapPut(_path, UpdateWeather)
+			.Produces<int>(201);
 	}
 
 	public void DefineServices(IServiceCollection services)
 	{
-		var config = services.BuildServiceProvider().GetService<IConfiguration>()!;
-		_apiKey = config["Meteoblue:ApiKey"];
 		services.AddSingleton<IRepository<int, WeatherRecord>, WeatherRepository>();
 	}
 
@@ -43,53 +36,27 @@ public class WeatherEndpointDefinition : IEndpointDefinition
 			Results.NotFound(id);
 	}
 
-	internal async Task<IResult> GetWeatherByCoords(
+	internal IResult GetWeatherByCoords(
 		IRepository<int, WeatherRecord> repo,
-		[FromBody] WeatherRequest request,
-		[FromQuery] bool ForceExternal = false)
+		[FromBody] WeatherRequest request)
 	{
-		WeatherRecord? forecast;
-		if (!ForceExternal)
-		{
-			// try first locally from repo
-			var id = request.GetHashCode();
-			if (repo.TryGetById(id, out forecast))
-			{
-				return Results.Ok(forecast);
-			}
-		}
-		Log.Information("calling meteoblue api to gather new forecast...");
-		forecast = await GetForecastFromMeteoblue(request, "trend-1h");
-		if (forecast != null)
-		{
-			var id = repo.Add(forecast);
-			return Results.Created($"{_path}/{id}", forecast);
-		}
-		return Results.NotFound(request);
+		var id = request.GetHashCode();
+		return repo.TryGetById(id, out var record) ?
+			Results.Ok(record) :
+			Results.NotFound(id);
 	}
 
-	private async Task<WeatherRecord?> GetForecastFromMeteoblue(
-		WeatherRequest request,
-		string package)
+	internal IResult UpdateWeather(
+		IRepository<int, WeatherRecord> repo,
+		[FromBody] WeatherRecord record)
 	{
-		var req = $"packages/{package}?apikey={_apiKey}";
-		req += $"&lon={request.Where.Longitude}&lat={request.Where.Latitude}";
-		req += $"&asl={request.Where.Altitude}&format=json";
-		using HttpResponseMessage response = await _client.GetAsync(req);
-    
-		if (!response.IsSuccessStatusCode)
-		{
-			Log.Error($"failing request: {req}");
-			return null;
-		}
-		
-		var jsonResponse = await response.Content.ReadAsStringAsync();
-		//System.Console.WriteLine(jsonResponse);
-		var obj = JObject.Parse(jsonResponse);
-		var published = obj["metadata"]["modelrun_updatetime_utc"].Value<DateTime>();
-		published = DateTime.SpecifyKind(published, DateTimeKind.Utc);
-		var data = obj[package.Replace('-', '_')].ToObject<WeatherResponse>();
-		var weather = data.MakeWeather(request.When);
-		return new WeatherRecord(request, weather, published);
+		var id = record.GetHashCode();
+		var logMsg = repo.TryGetById(id, out _) ?
+			"overriding existing weather record..." :
+			"adding new weather record...";
+		Log.Information(logMsg);
+	
+		id = repo.Update(record);
+		return Results.Created($"{_path}/{id}", id);
 	}
 }
